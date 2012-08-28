@@ -685,6 +685,7 @@ public final class Http {
 				entity = new UrlEncodedFormEntity(data, charset);
 			}
 			
+			
 			request.setEntity(entity);
 			return request;
 		}
