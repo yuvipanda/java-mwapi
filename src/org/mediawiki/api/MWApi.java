@@ -75,8 +75,8 @@ public class MWApi {
     }
 
     public String getEditToken() throws IOException {
-        ApiResult result = this.action("query").param("prop", "info").param("intoken", "edit").param("titles", "Bohemian Rhapsody").post();
-        return result.getString("/api/query/pages/page/@edittoken");
+        ApiResult result = this.action("tokens").param("type", "edit").get();
+        return result.getString("/api/tokens/@edittoken");
     }
 
     private ApiResult makeRequest(String method, HashMap<String, Object> params) throws IOException {
