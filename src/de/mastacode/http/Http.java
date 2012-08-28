@@ -27,8 +27,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import javax.management.RuntimeErrorException;
-
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpRequest;
@@ -567,22 +565,21 @@ public final class Http {
 		
 		@Override
 		protected HttpUriRequest createRequest() throws IOException {
-		    try {
-                URIBuilder builder = new URIBuilder(url);
-                List<NameValuePair> dataList = getData();
-                for(NameValuePair d: dataList) {
-                    builder.addParameter(d.getName(), d.getValue());
-                }
-    		    HttpGet req = new HttpGet(builder.toString());
-    			return req;
-            } catch (URISyntaxException e) {
-                throw new RuntimeException(e);
-            }
+			try {
+				URIBuilder builder = new URIBuilder(url);
+					List<NameValuePair> dataList = getData();
+					for(NameValuePair d: dataList) {
+						builder.addParameter(d.getName(), d.getValue());
+					}
+				HttpGet req = new HttpGet(builder.toString());
+					return req;
+			} catch (URISyntaxException e) {
+				throw new RuntimeException(e);
+			}
 		}
 		
 		@Override
 		public HttpRequestBuilder data(final String name, final String value) {
-			
 			getData().add(new BasicNameValuePair(name, value));
 			return this;
 		}
@@ -684,7 +681,6 @@ public final class Http {
 			if (data != null) {
 				entity = new UrlEncodedFormEntity(data, charset);
 			}
-			
 			
 			request.setEntity(entity);
 			return request;
