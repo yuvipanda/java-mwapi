@@ -578,9 +578,9 @@ public final class Http {
     // Request builders
     // Stolen from http://stackoverflow.com/questions/187676/java-equivalents-of-c-sharp-string-format-and-string-join
     // Because Java doesn't have a String Join function! WTF man!
-    static String join(Collection<?> s, String delimiter) {
+    static String join(Collection<String> s, String delimiter) {
         StringBuilder builder = new StringBuilder();
-        Iterator iter = s.iterator();
+        Iterator<String> iter = s.iterator();
         while (iter.hasNext()) {
             builder.append(iter.next());
             if (!iter.hasNext()) {
