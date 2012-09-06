@@ -22,7 +22,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URISyntaxException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -551,7 +554,20 @@ public final class Http {
 	}
 	
 	// Request builders
-	
+	// Stolen from http://stackoverflow.com/questions/187676/java-equivalents-of-c-sharp-string-format-and-string-join
+	// Because Java doesn't have a String Join function! WTF man!
+	 static String join(Collection<?> s, String delimiter) {
+	     StringBuilder builder = new StringBuilder();
+	     Iterator iter = s.iterator();
+	     while (iter.hasNext()) {
+	         builder.append(iter.next());
+	         if (!iter.hasNext()) {
+	           break;                  
+	         }
+	         builder.append(delimiter);
+	     }
+	     return builder.toString();
+	 }
 	/**
 	 * GET-request builder.
 	 * @see {@link Http#get(String)}
@@ -565,17 +581,16 @@ public final class Http {
 		
 		@Override
 		protected HttpUriRequest createRequest() throws IOException {
-			try {
-				URIBuilder builder = new URIBuilder(url);
-					List<NameValuePair> dataList = getData();
-					for(NameValuePair d: dataList) {
-						builder.addParameter(d.getName(), d.getValue());
-					}
-				HttpGet req = new HttpGet(builder.toString());
-					return req;
-			} catch (URISyntaxException e) {
-				throw new RuntimeException(e);
-			}
+		    String fullURL = url;
+		    ArrayList<String> params = new ArrayList<String>();
+		    List<NameValuePair> dataList = getData();
+		    for(NameValuePair d: dataList) {
+		        params.add(URLEncoder.encode(d.getName(), "utf-8") + "=" + URLEncoder.encode(d.getValue(), "utf-8"));
+		    }
+		    fullURL = fullURL + "?" + join(params, "&");
+		    
+		    HttpGet req = new HttpGet(fullURL);
+		    return req;
 		}
 		
 		@Override
