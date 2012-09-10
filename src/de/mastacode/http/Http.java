@@ -210,6 +210,7 @@ public final class Http {
         protected String charset = null;
         protected Boolean followRedirects;
         protected HttpUriRequest request;
+        protected List<NameValuePair> data;
 
         /**
          * Creates a new builder object for the given URL.
@@ -240,6 +241,13 @@ public final class Http {
         }
 
         /**
+        protected List<NameValuePair> getData() {
+            if (data == null) {
+                data = new ArrayList<NameValuePair>();
+            }
+            return data;
+        }
+        /**
          * Appends data to send with this request.
          * 
          * @param data
@@ -249,7 +257,15 @@ public final class Http {
          * @return this builder
          */
         public HttpRequestBuilder data(final NameValuePair... data) {
-            throw new UnsupportedOperationException("This HTTP-method doesn't support to add data.");
+            if (data != null) {
+                final List<NameValuePair> dataList = getData();
+                for (final NameValuePair d : data) {
+                    if (d != null) {
+                        dataList.add(d);
+                    }
+                }
+            }
+            return this;
         }
 
         /**
@@ -264,7 +280,8 @@ public final class Http {
          * @return this builder
          */
         public HttpRequestBuilder data(final String name, final String value) {
-            throw new UnsupportedOperationException("This HTTP-method doesn't support to add data.");
+            getData().add(new BasicNameValuePair(name, value));
+            return this;
         }
 
         /**
@@ -278,7 +295,13 @@ public final class Http {
          * @return this builder
          */
         public HttpRequestBuilder data(final Map<?, ?> data) {
-            throw new UnsupportedOperationException("This HTTP-method doesn't support to add data.");
+            final List<NameValuePair> dataList = getData();
+            for (Entry<?, ?> entry : data.entrySet()) {
+                final String name = entry.getKey().toString();
+                final String value = entry.getValue().toString();
+                dataList.add(new BasicNameValuePair(name, value));
+            }
+            return this;
         }
 
         /**
@@ -598,8 +621,6 @@ public final class Http {
      */
     private static class HttpGetRequestBuilder extends HttpRequestBuilder {
 
-        protected List<NameValuePair> data;
-
         protected HttpGetRequestBuilder(final String url) {
             super(url);
         }
@@ -617,43 +638,6 @@ public final class Http {
             HttpGet req = new HttpGet(fullURL);
             return req;
         }
-
-        @Override
-        public HttpRequestBuilder data(final String name, final String value) {
-            getData().add(new BasicNameValuePair(name, value));
-            return this;
-        }
-
-        @Override
-        public HttpRequestBuilder data(final NameValuePair... data) {
-            if (data != null) {
-                final List<NameValuePair> dataList = getData();
-                for (final NameValuePair d : data) {
-                    if (d != null) {
-                        dataList.add(d);
-                    }
-                }
-            }
-            return this;
-        }
-
-        @Override
-        public HttpRequestBuilder data(final Map<?, ?> data) {
-            final List<NameValuePair> dataList = getData();
-            for (Entry<?, ?> entry : data.entrySet()) {
-                final String name = entry.getKey().toString();
-                final String value = entry.getValue().toString();
-                dataList.add(new BasicNameValuePair(name, value));
-            }
-            return this;
-        }
-
-        protected List<NameValuePair> getData() {
-            if (data == null) {
-                data = new ArrayList<NameValuePair>();
-            }
-            return data;
-        }
     }
 
     /**
@@ -663,7 +647,6 @@ public final class Http {
      */
     private static class HttpPostRequestBuilder extends HttpRequestBuilder {
 
-        protected List<NameValuePair> data;
         protected HttpEntity entity;
 
         protected HttpPostRequestBuilder(final String url) {
@@ -683,37 +666,19 @@ public final class Http {
         @Override
         public HttpRequestBuilder data(final String name, final String value) {
             ensureNoEntity();
-
-            getData().add(new BasicNameValuePair(name, value));
-            return this;
+            return super.data(name, value);
         }
 
         @Override
         public HttpRequestBuilder data(final NameValuePair... data) {
             ensureNoEntity();
-
-            if (data != null) {
-                final List<NameValuePair> dataList = getData();
-                for (final NameValuePair d : data) {
-                    if (d != null) {
-                        dataList.add(d);
-                    }
-                }
-            }
-            return this;
+            return super.data(data);
         }
 
         @Override
         public HttpRequestBuilder data(final Map<?, ?> data) {
             ensureNoEntity();
-
-            final List<NameValuePair> dataList = getData();
-            for (Entry<?, ?> entry : data.entrySet()) {
-                final String name = entry.getKey().toString();
-                final String value = entry.getValue().toString();
-                dataList.add(new BasicNameValuePair(name, value));
-            }
-            return this;
+            return super.data(data);
         }
 
         @Override
@@ -725,13 +690,6 @@ public final class Http {
 
             request.setEntity(entity);
             return request;
-        }
-
-        protected List<NameValuePair> getData() {
-            if (data == null) {
-                data = new ArrayList<NameValuePair>();
-            }
-            return data;
         }
 
         private void ensureNoEntity() {
