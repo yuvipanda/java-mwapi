@@ -2,6 +2,7 @@ package org.mediawiki.api;
 
 import java.io.IOError;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.*;
 
 import javax.management.RuntimeErrorException;
@@ -68,6 +69,19 @@ public class MWApi {
         } else {
             return result;
         }
+    }
+    
+    public ApiResult upload(String filename, InputStream file, String text, String comment) throws IOException {
+        String token = this.getEditToken();
+        HttpRequestBuilder builder = Http.multipart(apiURL)
+                .data("action", "upload")
+                .data("token", token)
+                .data("text", text)
+                .data("ignorewarnings", "1")
+                .data("comment", comment)
+                .data("filename", filename)
+                .file("file", filename, file);
+        return ApiResult.fromRequestBuilder(builder, client);
     }
     
     public void logout() throws IOException {

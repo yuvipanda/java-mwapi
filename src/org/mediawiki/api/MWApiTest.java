@@ -2,10 +2,16 @@ package org.mediawiki.api;
 
 import static org.junit.Assert.*;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.AbstractMap;
 import java.util.List;
 
+import javax.management.RuntimeErrorException;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathFactory;
 
@@ -14,6 +20,11 @@ import org.json.simple.parser.ParseException;
 import org.junit.Before;
 import org.junit.Test;
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.ls.DOMImplementationLS;
+import org.w3c.dom.ls.LSSerializer;
+
+import com.sun.org.apache.xerces.internal.dom.DOMImplementationImpl;
 
 public class MWApiTest {
 
@@ -58,6 +69,48 @@ public class MWApiTest {
         assertFalse("+\\".equals(api.getEditToken()));
         api.logout();
         assertEquals("+\\", api.getEditToken());
+    }
+   
+    // <Insert profanity about Java>
+    private String sha1Of(String filepath) throws IOException {
+        MessageDigest md;
+        try {
+            md = MessageDigest.getInstance("SHA1");
+        } catch (NoSuchAlgorithmException e) {
+            // And I'm batman. Fuck you, Java
+            throw new RuntimeException(e);
+        }
+        FileInputStream fis = new FileInputStream(filepath);
+        byte[] dataBytes = new byte[1024];
+     
+        int nread = 0; 
+     
+        while ((nread = fis.read(dataBytes)) != -1) {
+          md.update(dataBytes, 0, nread);
+        };
+     
+        byte[] mdbytes = md.digest();
+     
+        //convert the byte to hex format
+        StringBuffer sb = new StringBuffer("");
+        for (int i = 0; i < mdbytes.length; i++) {
+            sb.append(Integer.toString((mdbytes[i] & 0xff) + 0x100, 16).substring(1));
+        }
+        
+        return sb.toString();
+    }
+    
+    @Test
+    public void testUpload() throws IOException {
+        setupWriteableAPI();
+        // HACK SO UGLY IT MAKES JAVA LOOK PRETTY IN COMPARISON
+        // I should fix this once I figure out how. Unable to find proper docs on including resources
+        String filepath = "/Users/yuvipanda/test.png";
+        assertEquals("Success", api.login(USERNAME, PASSWORD));
+        FileInputStream stream = new FileInputStream(filepath);
+        ApiResult result = api.upload("test", stream, "yo!", "Wassup?");
+        assertEquals("Success", result.getString("/api/upload/@result"));
+        assertEquals(sha1Of(filepath), result.getString("/api/upload/imageinfo/@sha1"));
     }
 
     @Test
