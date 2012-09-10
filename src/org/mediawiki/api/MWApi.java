@@ -86,23 +86,8 @@ public class MWApi {
         } else {
             builder = Http.get(apiURL);
         }
-        try {
-            DocumentBuilder docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-            Document doc = docBuilder.parse(builder.use(client).charset("utf-8").data("format", "xml").data(params).asResponse().getEntity().getContent());
-            return new ApiResult(doc);
-        } catch (ParserConfigurationException e) {
-            // I don't know wtf I can do about this on...
-            throw new RuntimeException(e);
-        } catch (IllegalStateException e) {
-            // So, this should never actually happen - since we assume MediaWiki always generates valid json
-            // So the only thing causing this would be a network truncation
-            // Sooo... I can throw IOError
-            // Thanks Java, for making me spend significant time on shit that happens once in a bluemoon
-            // I surely am writing Nuclear Submarine controller code
-            throw new IOError(e);
-        } catch (SAXException e) {
-            // See Rant above
-            throw new IOError(e);
-        }
+        builder.data(params);
+        return ApiResult.fromRequestBuilder(builder, client);
     }
 }
+;
