@@ -22,8 +22,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URLEncoder;
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -41,9 +43,16 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.params.HttpClientParams;
+import org.apache.http.entity.mime.FormBodyPart;
+import org.apache.http.entity.mime.HttpMultipart;
+import org.apache.http.entity.mime.MultipartEntity;
+import org.apache.http.entity.mime.content.InputStreamBody;
+import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
+
+import de.mastacode.http.Http.HttpRequestBuilder;
 
 /**
  * Fluent builder for the {@linkplain HttpClient} to simplify its usage.
@@ -154,6 +163,17 @@ public final class Http {
     public static HttpRequestBuilder post(final String url) {
         return new HttpPostRequestBuilder(url);
     }
+    
+    /**
+     * Creates a builder object for a multipart POST request
+     * 
+     * @param url
+     *            the URL to use for this request.
+     * @return the builder object for this URL.
+     */
+    public static HttpRequestBuilder multipart(final String url) {
+        return new HttpMultipartRequestBuilder(url);
+    }
 
     /**
      * Creates a builder object for a GET-request. Supports no data nor entity
@@ -241,6 +261,37 @@ public final class Http {
         }
 
         /**
+         * Appends a new {@link InputStream}, specified by the given {@code name} and {@code value}, to this request.
+         * 
+         * @param name
+         *            the name of the parameter to add to this request
+         * @param filename
+         *            the filename parameter to be set in the request
+         * @param file
+         *            the value of the parameter to add to this request
+         * @throws UnsupportedOperationException
+         *             if this request not supports data modifications
+         * @return this builder
+         */
+        public HttpRequestBuilder file(final String name, final String filename, final InputStream file) {
+            throw new UnsupportedOperationException("This HTTP-method doesn't support multipart data.");
+        }
+ 
+        /**
+         * Appends a new {@link InputStream}, specified by the given {@code name} and {@code value}, to this request.
+         * 
+         * @param name
+         *            the name of the parameter to add to this request
+         * @param file
+         *            the value of the parameter to add to this request
+         * @throws UnsupportedOperationException
+         *             if this request not supports data modifications
+         * @return this builder
+         */
+        public HttpRequestBuilder file(final String name, final File file) {
+            throw new UnsupportedOperationException("This HTTP-method doesn't support multipart data.");
+        }
+        
         protected List<NameValuePair> getData() {
             if (data == null) {
                 data = new ArrayList<NameValuePair>();
@@ -614,6 +665,38 @@ public final class Http {
         return builder.toString();
     }
 
+    private static class HttpMultipartRequestBuilder extends HttpRequestBuilder {
+
+        protected HashMap<String, AbstractMap.SimpleEntry<String, InputStream>> files;
+        
+        protected HttpMultipartRequestBuilder(String url) {
+            super(url);
+            files = new HashMap<String, AbstractMap.SimpleEntry<String,InputStream>>();
+        }
+        
+        @Override
+        public HttpRequestBuilder file(String name, String filename, InputStream file) {
+            files.put(name, new AbstractMap.SimpleEntry<String, InputStream>(filename, file));
+            return this;
+        }
+
+        @Override
+        protected HttpUriRequest createRequest() throws IOException {
+            MultipartEntity entity = new MultipartEntity();          
+            List<NameValuePair> dataList = getData();
+            for (NameValuePair d : dataList) {
+                entity.addPart(new FormBodyPart(d.getName(), new StringBody(d.getValue())));
+            }
+            for (Map.Entry<String, AbstractMap.SimpleEntry<String, InputStream>> entry : files.entrySet()) {
+                entity.addPart(new FormBodyPart(entry.getKey(), new InputStreamBody(entry.getValue().getValue(), entry.getValue().getKey())));
+            }
+            
+            final HttpPost request = new HttpPost(url);
+            request.setEntity(entity);
+            return request;
+        }
+        
+    }
     /**
      * GET-request builder.
      * 
