@@ -1,23 +1,13 @@
 package org.mediawiki.api;
 
-import java.io.IOError;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
-
-import javax.management.RuntimeErrorException;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 
 import de.mastacode.http.*;
 import de.mastacode.http.Http.HttpRequestBuilder;
 
 import org.apache.http.client.HttpClient;
-import org.json.simple.parser.*;
-import org.json.simple.*;
-import org.w3c.dom.Document;
-import org.xml.sax.SAXException;
 
 public class MWApi {
     public class RequestBuilder {
@@ -45,12 +35,10 @@ public class MWApi {
 
     private HttpClient client;
     private String apiURL;
-    private JSONParser parser;
 
     public MWApi(String apiURL, HttpClient client) {
         this.apiURL = apiURL;
         this.client = client;
-        this.parser = new JSONParser();
     }
 
     public RequestBuilder action(String action) {
