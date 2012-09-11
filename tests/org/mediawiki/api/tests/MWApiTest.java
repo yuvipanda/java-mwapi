@@ -102,9 +102,8 @@ public class MWApiTest {
     @Test
     public void testUpload() throws IOException {
         setupWriteableAPI();
-        // HACK SO UGLY IT MAKES JAVA LOOK PRETTY IN COMPARISON
-        // I should fix this once I figure out how. Unable to find proper docs on including resources
-        String filepath = "/Users/yuvipanda/test.png";
+        
+        String filepath = this.getClass().getResource("test.png").getFile();
         assertEquals("Success", api.login(USERNAME, PASSWORD));
         FileInputStream stream = new FileInputStream(filepath);
         ApiResult result = api.upload("test", stream, "yo!", "Wassup?");
