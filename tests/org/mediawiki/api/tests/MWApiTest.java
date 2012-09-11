@@ -1,4 +1,4 @@
-package org.mediawiki.api;
+package org.mediawiki.api.tests;
 
 import static org.junit.Assert.*;
 
@@ -16,15 +16,14 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathFactory;
 
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.json.simple.parser.ParseException;
 import org.junit.Before;
 import org.junit.Test;
+import org.mediawiki.api.ApiResult;
+import org.mediawiki.api.MWApi;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.ls.DOMImplementationLS;
 import org.w3c.dom.ls.LSSerializer;
-
-import com.sun.org.apache.xerces.internal.dom.DOMImplementationImpl;
 
 public class MWApiTest {
 
