@@ -35,6 +35,7 @@ public class MWApi {
 
     private HttpClient client;
     private String apiURL;
+    public boolean isLoggedIn;
 
     public MWApi(String apiURL, HttpClient client) {
         this.apiURL = apiURL;
@@ -53,7 +54,11 @@ public class MWApi {
         if (result.equals("NeedToken")) {
             String token = tokenData.getString("/api/login/@token");
             ApiResult confirmData = this.action("login").param("lgname", username).param("lgpassword", password).param("lgtoken", token).post();
-            return confirmData.getString("/api/login/@result");
+            String finalResult = confirmData.getString("/api/login/@result");
+            if(finalResult.equals("Success")) {
+                isLoggedIn = true;
+            }
+            return finalResult;
         } else {
             return result;
         }
@@ -73,6 +78,8 @@ public class MWApi {
     }
     
     public void logout() throws IOException {
+        // I should be doing more validation here, but meh
+        isLoggedIn = false;
         this.action("logout").post();
     }
 
