@@ -15,11 +15,14 @@
  */
 package de.mastacode.http;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.URLEncoder;
 import java.util.AbstractMap;
@@ -43,13 +46,16 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.params.HttpClientParams;
+import org.apache.http.entity.BasicHttpEntity;
 import org.apache.http.entity.mime.FormBodyPart;
 import org.apache.http.entity.mime.HttpMultipart;
 import org.apache.http.entity.mime.MultipartEntity;
+import org.apache.http.entity.mime.content.ByteArrayBody;
 import org.apache.http.entity.mime.content.InputStreamBody;
 import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.util.ByteArrayBuffer;
 import org.apache.http.util.EntityUtils;
 
 import de.mastacode.http.Http.HttpRequestBuilder;
@@ -680,6 +686,21 @@ public final class Http {
             return this;
         }
 
+        private byte[] getBytes(InputStream istream) throws IOException {
+            ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+
+            int nRead;
+            byte[] data = new byte[16384];
+
+            while ((nRead = istream.read(data, 0, data.length)) != -1) {
+              buffer.write(data, 0, nRead);
+            }
+
+            buffer.flush();
+
+            return buffer.toByteArray();
+        }
+        
         @Override
         protected HttpUriRequest createRequest() throws IOException {
             MultipartEntity entity = new MultipartEntity();          
@@ -688,7 +709,7 @@ public final class Http {
                 entity.addPart(new FormBodyPart(d.getName(), new StringBody(d.getValue())));
             }
             for (Map.Entry<String, AbstractMap.SimpleEntry<String, InputStream>> entry : files.entrySet()) {
-                entity.addPart(new FormBodyPart(entry.getKey(), new InputStreamBody(entry.getValue().getValue(), entry.getValue().getKey())));
+                entity.addPart(new FormBodyPart(entry.getKey(), new ByteArrayBody(getBytes(entry.getValue().getValue()), entry.getValue().getKey())));
             }
             
             final HttpPost request = new HttpPost(url);
