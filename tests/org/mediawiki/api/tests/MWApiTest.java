@@ -121,14 +121,15 @@ public class MWApiTest {
    
     private class ArrayListOutputProgressListener implements ProgressListener {
 
-        ArrayList<Long> list;
-        @Override
-        public void transferred(long num) {
-            list.add(num);
-        }
+        ArrayList<Double> list;
         
-        public ArrayListOutputProgressListener(ArrayList<Long> list) {
+        public ArrayListOutputProgressListener(ArrayList<Double> list) {
            this.list = list; 
+        }
+
+        @Override
+        public void onProgress(long transferred, long total) {
+           list.add((double) transferred/ (double) total); 
         }
     }
     
@@ -140,11 +141,11 @@ public class MWApiTest {
         assertEquals("Success", api.login(USERNAME, PASSWORD));
         FileInputStream stream = new FileInputStream(filepath);
         
-        ArrayList<Long> progressValues = new ArrayList<Long>();
+        ArrayList<Double> progressValues = new ArrayList<Double>();
         ApiResult result = api.upload("test", stream, "yo!", "Wassup?", new ArrayListOutputProgressListener(progressValues));
         // TODO: Very simple check, do something a lot more complete
         assertNotSame(0, progressValues.size());
-        
+        assertEquals(1.0, progressValues.get(progressValues.size() - 1).doubleValue(), 0.0);
         assertEquals(sha1Of(filepath), result.getString("/api/upload/imageinfo/@sha1"));
     }
 

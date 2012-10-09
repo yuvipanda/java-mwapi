@@ -29,7 +29,7 @@ public class CountingRequestEntity implements HttpEntity {
     }
 
     public void writeTo(final OutputStream out) throws IOException {
-        this.delegate.writeTo(new CountingOutputStream(out, this.listener));
+        this.delegate.writeTo(new CountingOutputStream(out, this.listener, this.getContentLength()));
     }
 
     public static class CountingOutputStream extends FilterOutputStream {
@@ -37,24 +37,26 @@ public class CountingRequestEntity implements HttpEntity {
         private final ProgressListener listener;
 
         private long transferred;
+        private long total;
 
         public CountingOutputStream(final OutputStream out,
-                final ProgressListener listener) {
+                final ProgressListener listener, final long totalLength) {
             super(out);
             this.listener = listener;
             this.transferred = 0;
+            this.total = totalLength;
         }
 
         public void write(byte[] b, int off, int len) throws IOException {
             out.write(b, off, len);
             this.transferred += len;
-            this.listener.transferred(this.transferred);
+            this.listener.onProgress(transferred, total);
         }
 
         public void write(int b) throws IOException {
             out.write(b);
             this.transferred++;
-            this.listener.transferred(this.transferred);
+            this.listener.onProgress(transferred, total);
         }
     }
 

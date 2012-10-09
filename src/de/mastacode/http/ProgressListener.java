@@ -1,5 +1,5 @@
 package de.mastacode.http;
 
 public interface ProgressListener {
-    void transferred(long num);
+    void onProgress(long transferred, long total);
 }
