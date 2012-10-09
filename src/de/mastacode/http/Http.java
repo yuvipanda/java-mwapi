@@ -237,6 +237,7 @@ public final class Http {
         protected Boolean followRedirects;
         protected HttpUriRequest request;
         protected List<NameValuePair> data;
+        protected ProgressListener sendProgressListener;
 
         /**
          * Creates a new builder object for the given URL.
@@ -295,6 +296,20 @@ public final class Http {
          * @return this builder
          */
         public HttpRequestBuilder file(final String name, final File file) {
+            throw new UnsupportedOperationException("This HTTP-method doesn't support multipart data.");
+        }
+
+        /**
+         * Set the wannabe closure that is called back to report progress when sending a request
+         * 
+         * @param sendProgressListener
+         *            something that implements ProgressListener to be called back to report progress 
+         *            when sending large requests
+         * @throws UnsupportedOperationException
+         *             if this request not supports data modifications
+         * @return this builder
+         */
+        public HttpRequestBuilder sendProgressListener(ProgressListener sendProgressListener) {
             throw new UnsupportedOperationException("This HTTP-method doesn't support multipart data.");
         }
         
@@ -686,6 +701,12 @@ public final class Http {
             return this;
         }
 
+        @Override
+        public HttpRequestBuilder sendProgressListener(ProgressListener sendProgressListener) {
+            this.sendProgressListener = sendProgressListener;
+            return this;
+        }
+
         private byte[] getBytes(InputStream istream) throws IOException {
             ByteArrayOutputStream buffer = new ByteArrayOutputStream();
 
@@ -712,8 +733,15 @@ public final class Http {
                 entity.addPart(new FormBodyPart(entry.getKey(), new ByteArrayBody(getBytes(entry.getValue().getValue()), entry.getValue().getKey())));
             }
             
+            
             final HttpPost request = new HttpPost(url);
-            request.setEntity(entity);
+
+            if(this.sendProgressListener != null) {
+                CountingRequestEntity countingEntity = new CountingRequestEntity(entity, this.sendProgressListener);
+                request.setEntity(countingEntity);
+            } else {
+                request.setEntity(entity);
+            }
             return request;
         }
         

@@ -6,9 +6,13 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.AbstractMap;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.management.RuntimeErrorException;
@@ -25,12 +29,16 @@ import org.w3c.dom.Node;
 import org.w3c.dom.ls.DOMImplementationLS;
 import org.w3c.dom.ls.LSSerializer;
 
+import com.sun.jmx.snmp.SnmpString;
+
+import de.mastacode.http.ProgressListener;
+
 public class MWApiTest {
 
     // Test accounts on local wiki. For write tests
     // Setup your local wiki and create this account before running tests
-    private final String USERNAME = "admin";
-    private final String PASSWORD = "testtest";
+    private final String USERNAME = "yuvipanda";
+    private final String PASSWORD = "plasmafury";
     private final String WRITEAPIURL = "http://localhost/w/api.php";
 
     // Use testwiki for read only tests
@@ -108,6 +116,35 @@ public class MWApiTest {
         FileInputStream stream = new FileInputStream(filepath);
         ApiResult result = api.upload("test", stream, "yo!", "Wassup?");
         assertEquals("Success", result.getString("/api/upload/@result"));
+        assertEquals(sha1Of(filepath), result.getString("/api/upload/imageinfo/@sha1"));
+    }
+   
+    private class ArrayListOutputProgressListener implements ProgressListener {
+
+        ArrayList<Long> list;
+        @Override
+        public void transferred(long num) {
+            list.add(num);
+        }
+        
+        public ArrayListOutputProgressListener(ArrayList<Long> list) {
+           this.list = list; 
+        }
+    }
+    
+    @Test
+    public void testUploadWithProgress() throws IOException {
+        setupWriteableAPI();
+        
+        String filepath = this.getClass().getResource("test.png").getFile();
+        assertEquals("Success", api.login(USERNAME, PASSWORD));
+        FileInputStream stream = new FileInputStream(filepath);
+        
+        ArrayList<Long> progressValues = new ArrayList<Long>();
+        ApiResult result = api.upload("test", stream, "yo!", "Wassup?", new ArrayListOutputProgressListener(progressValues));
+        // TODO: Very simple check, do something a lot more complete
+        assertNotSame(0, progressValues.size());
+        
         assertEquals(sha1Of(filepath), result.getString("/api/upload/imageinfo/@sha1"));
     }
 
