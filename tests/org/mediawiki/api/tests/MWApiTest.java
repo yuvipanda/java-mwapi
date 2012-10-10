@@ -146,6 +146,12 @@ public class MWApiTest {
         // TODO: Very simple check, do something a lot more complete
         assertNotSame(0, progressValues.size());
         assertEquals(1.0, progressValues.get(progressValues.size() - 1).doubleValue(), 0.0);
+       
+        Double lastValue = progressValues.get(0);
+        for(Double d : progressValues) {
+           assertTrue(d >= lastValue); 
+        }
+        
         assertEquals(sha1Of(filepath), result.getString("/api/upload/imageinfo/@sha1"));
     }
 
