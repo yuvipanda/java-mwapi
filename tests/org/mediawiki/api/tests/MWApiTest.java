@@ -133,6 +133,14 @@ public class MWApiTest {
         }
     }
     
+    private long countBytes(InputStream source) throws IOException {
+        long length = 0;
+        while(source.read() != -1) {
+            length++;
+        }
+        return length;
+    }
+    
     @Test
     public void testUploadWithProgress() throws IOException {
         setupWriteableAPI();
@@ -140,9 +148,13 @@ public class MWApiTest {
         String filepath = this.getClass().getResource("test.png").getFile();
         assertEquals("Success", api.login(USERNAME, PASSWORD));
         FileInputStream stream = new FileInputStream(filepath);
+        FileInputStream streamForCounting = new FileInputStream(filepath);
+        long length = countBytes(streamForCounting);
         
         ArrayList<Double> progressValues = new ArrayList<Double>();
-        ApiResult result = api.upload("test", stream, "yo!", "Wassup?", new ArrayListOutputProgressListener(progressValues));
+        ApiResult result = api.upload("test", stream, length, "yo!", "Wassup?", new ArrayListOutputProgressListener(progressValues));
+        assertEquals(sha1Of(filepath), result.getString("/api/upload/imageinfo/@sha1"));
+        
         // TODO: Very simple check, do something a lot more complete
         assertNotSame(0, progressValues.size());
         assertEquals(1.0, progressValues.get(progressValues.size() - 1).doubleValue(), 0.0);
@@ -151,8 +163,6 @@ public class MWApiTest {
         for(Double d : progressValues) {
            assertTrue(d >= lastValue); 
         }
-        
-        assertEquals(sha1Of(filepath), result.getString("/api/upload/imageinfo/@sha1"));
     }
 
     @Test

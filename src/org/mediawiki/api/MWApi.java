@@ -64,11 +64,15 @@ public class MWApi {
         }
     }
 
-    public ApiResult upload(String filename, InputStream file, String text, String comment) throws IOException {
-        return this.upload(filename, file, text, comment, null);
+    public ApiResult upload(String filename, InputStream file, long length, String text, String comment) throws IOException {
+        return this.upload(filename, file, length, text, comment, null);
     }
     
-    public ApiResult upload(String filename, InputStream file, String text, String comment, ProgressListener uploadProgressListener) throws IOException {
+    public ApiResult upload(String filename, InputStream file, String text, String comment) throws IOException {
+        return this.upload(filename, file, -1, text, comment, null);
+    }
+    
+    public ApiResult upload(String filename, InputStream file, long length, String text, String comment, ProgressListener uploadProgressListener) throws IOException {
         String token = this.getEditToken();
         HttpRequestBuilder builder = Http.multipart(apiURL)
                 .data("action", "upload")
@@ -77,8 +81,12 @@ public class MWApi {
                 .data("ignorewarnings", "1")
                 .data("comment", comment)
                 .data("filename", filename)
-                .sendProgressListener(uploadProgressListener)
-                .file("file", filename, file);
+                .sendProgressListener(uploadProgressListener);
+        if(length != -1) {
+                builder.file("file", filename, file, length);
+        } else {
+                builder.file("file", filename, file);
+        }
         return ApiResult.fromRequestBuilder(builder, client);
     }
     

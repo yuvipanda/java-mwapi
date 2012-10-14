@@ -268,8 +268,8 @@ public final class Http {
         }
 
         /**
-         * Appends a new {@link InputStream}, specified by the given {@code name} and {@code value}, to this request.
-         * 
+         * Appends a new {@link InputStream}, with the given {@code filename} to the request with the given {@code name}
+         *  
          * @param name
          *            the name of the parameter to add to this request
          * @param filename
@@ -284,6 +284,25 @@ public final class Http {
             throw new UnsupportedOperationException("This HTTP-method doesn't support multipart data.");
         }
  
+        /**
+         * Appends a new {@link InputStream}, with the given {@code filename} & {@code length} to the request with the given {@code name}
+         * 
+         * @param name
+         *            the name of the parameter to add to this request
+         * @param filename
+         *            the filename parameter to be set in the request
+         * @param file
+         *            the value of the parameter to add to this request
+         * @param file
+         *            the length of the file to be sent
+         * @throws UnsupportedOperationException
+         *             if this request not supports data modifications
+         * @return this builder
+         */
+        public HttpRequestBuilder file(String name, String filename, InputStream file, long length) {
+            throw new UnsupportedOperationException("This HTTP-method doesn't support multipart data.");
+        }
+
         /**
          * Appends a new {@link InputStream}, specified by the given {@code name} and {@code value}, to this request.
          * 
@@ -688,16 +707,22 @@ public final class Http {
 
     private static class HttpMultipartRequestBuilder extends HttpRequestBuilder {
 
-        protected HashMap<String, AbstractMap.SimpleEntry<String, InputStream>> files;
+        protected HashMap<String, InputStreamBody> files;
         
         protected HttpMultipartRequestBuilder(String url) {
             super(url);
-            files = new HashMap<String, AbstractMap.SimpleEntry<String,InputStream>>();
+            files = new HashMap<String, InputStreamBody>();
         }
         
         @Override
         public HttpRequestBuilder file(String name, String filename, InputStream file) {
-            files.put(name, new AbstractMap.SimpleEntry<String, InputStream>(filename, file));
+            files.put(name, new InputStreamBody(file, filename));
+            return this;
+        }
+        
+        @Override
+        public HttpRequestBuilder file(String name, String filename, InputStream file, long length) {
+            files.put(name, new CountedInputStreamBody(file, filename, length));
             return this;
         }
 
@@ -729,8 +754,8 @@ public final class Http {
             for (NameValuePair d : dataList) {
                 entity.addPart(new FormBodyPart(d.getName(), new StringBody(d.getValue())));
             }
-            for (Map.Entry<String, AbstractMap.SimpleEntry<String, InputStream>> entry : files.entrySet()) {
-                entity.addPart(new FormBodyPart(entry.getKey(), new ByteArrayBody(getBytes(entry.getValue().getValue()), entry.getValue().getKey())));
+            for (Map.Entry<String, InputStreamBody> entry : files.entrySet()) {
+                entity.addPart(new FormBodyPart(entry.getKey(), entry.getValue()));
             }
             
             
