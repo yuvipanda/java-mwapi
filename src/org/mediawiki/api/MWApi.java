@@ -2,12 +2,19 @@ package org.mediawiki.api;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.*;
 
 import de.mastacode.http.*;
 import de.mastacode.http.Http.HttpRequestBuilder;
 
+import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
+import org.apache.http.cookie.Cookie;
+import org.apache.http.impl.client.AbstractHttpClient;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.cookie.BasicClientCookie;
 
 public class MWApi {
     public class RequestBuilder {
@@ -33,11 +40,13 @@ public class MWApi {
         }
     }
 
-    private HttpClient client;
+    private AbstractHttpClient client;
     private String apiURL;
     public boolean isLoggedIn;
+    private String authCookie = null;
+    private boolean includeAuthCookie;
 
-    public MWApi(String apiURL, HttpClient client) {
+    public MWApi(String apiURL, AbstractHttpClient client) {
         this.apiURL = apiURL;
         this.client = client;
     }
@@ -46,6 +55,38 @@ public class MWApi {
         RequestBuilder builder = new RequestBuilder(this);
         builder.param("action", action);
         return builder;
+    }
+    
+    public String getAuthCookie() {
+        if(authCookie == null){
+            authCookie = "";
+            List<Cookie> cookies = client.getCookieStore().getCookies();
+            for(Cookie cookie: cookies) {
+                authCookie += cookie.getName() + "=" + cookie.getValue() + ";";
+            }
+        }
+        return authCookie;
+    }
+    
+    public void setAuthCookie(String authCookie) {
+        this.authCookie = authCookie;
+        this.isLoggedIn = true;
+        String[] cookies = authCookie.split(";");
+        String domain;
+        try {
+            domain = new URL(apiURL).getHost();
+        } catch (MalformedURLException e) {
+            // Mighty well better not happen!
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
+        // This works because I know which cookies are going to be set by MediaWiki, and they don't contain a = or ; in them :D
+        for(String cookie: cookies) {
+            String[] parts = cookie.split("=");
+            BasicClientCookie c = new BasicClientCookie(parts[0], parts[1]);
+            c.setDomain(domain);
+            client.getCookieStore().addCookie(c);
+        }
     }
 
     public String login(String username, String password) throws IOException {

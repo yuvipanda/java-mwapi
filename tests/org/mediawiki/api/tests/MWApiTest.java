@@ -166,6 +166,20 @@ public class MWApiTest {
     }
 
     @Test
+    public void testAuthCookieLogin() throws IOException {
+        setupWriteableAPI();
+        assertEquals("Success", api.login(USERNAME, PASSWORD));
+        String authCookie = api.getAuthCookie();
+        assertNotNull(authCookie);
+        // reset API
+        setupWriteableAPI();
+        assertEquals("+\\", api.getEditToken());
+        api.setAuthCookie(authCookie);
+        assertEquals(authCookie, api.getAuthCookie());
+        assertFalse("+\\".equals(api.getEditToken()));
+    }
+    
+    @Test
     public void testLoggedInEditAttempt() throws IOException {
         setupWriteableAPI();
         assertEquals("Success", api.login(USERNAME, PASSWORD));
