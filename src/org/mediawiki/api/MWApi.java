@@ -89,6 +89,11 @@ public class MWApi {
         }
     }
 
+    public boolean validateLogin() throws IOException {
+        ApiResult userMeta = this.action("query").param("meta", "userinfo").get();
+        return userMeta.getNumber("/api/query/userinfo/@id") != 0;
+    }
+    
     public String login(String username, String password) throws IOException {
         ApiResult tokenData = this.action("login").param("lgname", username).param("lgpassword", password).post();
         String result = tokenData.getString("/api/login/@result");
