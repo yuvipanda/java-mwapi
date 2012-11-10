@@ -44,7 +44,8 @@ public class MWApi {
     private String apiURL;
     public boolean isLoggedIn;
     private String authCookie = null;
-    private boolean includeAuthCookie;
+    private String userName = null;
+    private String userID = null;
 
     public MWApi(String apiURL, AbstractHttpClient client) {
         this.apiURL = apiURL;
@@ -91,7 +92,23 @@ public class MWApi {
 
     public boolean validateLogin() throws IOException {
         ApiResult userMeta = this.action("query").param("meta", "userinfo").get();
-        return userMeta.getNumber("/api/query/userinfo/@id") != 0;
+        this.userID = userMeta.getString("/api/query/userinfo/@id");
+        this.userName = userMeta.getString("/api/query/userinfo/@name");
+        return !userID.equals("0");
+    }
+    
+    public String getUserID() throws IOException {
+        if(this.userID == null || this.userID == "0") {
+            this.validateLogin();
+        }
+        return userID;
+    }
+    
+    public String getUserName() throws IOException {
+        if(this.userID == null || this.userID == "0") {
+            this.validateLogin();
+        }
+        return userName;
     }
     
     public String login(String username, String password) throws IOException {
