@@ -5,16 +5,12 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
-
-import de.mastacode.http.*;
-import de.mastacode.http.Http.HttpRequestBuilder;
-
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
 import org.apache.http.cookie.Cookie;
 import org.apache.http.impl.client.AbstractHttpClient;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.cookie.BasicClientCookie;
+import org.mediawiki.api.de.mastacode.http.Http;
+import org.mediawiki.api.de.mastacode.http.Http.HttpRequestBuilder;
+import org.mediawiki.api.de.mastacode.http.ProgressListener;
 
 public class MWApi {
     public class RequestBuilder {

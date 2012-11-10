@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.mastacode.http;
+package org.mediawiki.api.de.mastacode.http;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -58,7 +58,7 @@ import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.ByteArrayBuffer;
 import org.apache.http.util.EntityUtils;
 
-import de.mastacode.http.Http.HttpRequestBuilder;
+
 
 /**
  * Fluent builder for the {@linkplain HttpClient} to simplify its usage.
