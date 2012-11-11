@@ -1,4 +1,4 @@
-package org.mediawiki.javamwapi;
+package org.mediawiki.api;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -11,10 +11,8 @@ import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 import org.mediawiki.api.de.mastacode.http.ProgressListener;
-import org.mediawiki.api.ApiResult;
-import org.mediawiki.api.MWApi;
 
-public class AppTest {
+public class MWApiTest {
 
     // Test accounts on local wiki. For write tests
     // Setup your local wiki and create this account before running tests
