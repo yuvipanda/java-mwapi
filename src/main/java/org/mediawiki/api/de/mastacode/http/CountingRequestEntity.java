@@ -1,4 +1,4 @@
-package de.mastacode.http;
+package org.mediawiki.api.de.mastacode.http;
 import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.InputStream;

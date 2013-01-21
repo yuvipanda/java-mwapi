@@ -2,6 +2,7 @@ package org.mediawiki.api;
 
 import java.io.IOError;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 
 import javax.xml.parsers.*;
@@ -13,7 +14,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import de.mastacode.http.Http.HttpRequestBuilder;
+import org.mediawiki.api.de.mastacode.http.Http.HttpRequestBuilder;
 
 public class ApiResult {
     private Node doc;
@@ -27,7 +28,8 @@ public class ApiResult {
     static ApiResult fromRequestBuilder(HttpRequestBuilder builder, HttpClient client) throws IOException {
         try {
             DocumentBuilder docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-            Document doc = docBuilder.parse(builder.use(client).charset("utf-8").data("format", "xml").asResponse().getEntity().getContent());
+            InputStream response = builder.use(client).charset("utf-8").data("format", "xml").asResponse().getEntity().getContent();
+            Document doc = docBuilder.parse(response);
             return new ApiResult(doc);
         } catch (ParserConfigurationException e) {
             // I don't know wtf I can do about this on...

@@ -1,45 +1,24 @@
-package org.mediawiki.api.tests;
-
-import static org.junit.Assert.*;
+package org.mediawiki.api;
 
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.AbstractMap;
 import java.util.ArrayList;
-import java.util.List;
-
-import javax.management.RuntimeErrorException;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathFactory;
-
 import org.apache.http.impl.client.DefaultHttpClient;
+import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
-import org.mediawiki.api.ApiResult;
-import org.mediawiki.api.MWApi;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.w3c.dom.ls.DOMImplementationLS;
-import org.w3c.dom.ls.LSSerializer;
-
-import com.sun.jmx.snmp.SnmpString;
-
-import de.mastacode.http.ProgressListener;
+import org.mediawiki.api.de.mastacode.http.ProgressListener;
 
 public class MWApiTest {
 
     // Test accounts on local wiki. For write tests
     // Setup your local wiki and create this account before running tests
     private final String USERNAME = "yuvipanda";
-    private final String PASSWORD = "plasmafury";
-    private final String WRITEAPIURL = "http://localhost/w/api.php";
+    private final String PASSWORD = "testingtesting";
+    private final String WRITEAPIURL = "http://test2.wikipedia.org/w/api.php";
 
     // Use testwiki for read only tests
     private final String READAPIURL = "http://test.wikipedia.org/w/api.php";
@@ -111,7 +90,7 @@ public class MWApiTest {
     public void testUpload() throws IOException {
         setupWriteableAPI();
         
-        String filepath = this.getClass().getResource("test.png").getFile();
+        String filepath = Thread.currentThread().getContextClassLoader().getResource("test.png").getFile();
         assertEquals("Success", api.login(USERNAME, PASSWORD));
         FileInputStream stream = new FileInputStream(filepath);
         ApiResult result = api.upload("test", stream, "yo!", "Wassup?");
@@ -144,8 +123,8 @@ public class MWApiTest {
     @Test
     public void testUploadWithProgress() throws IOException {
         setupWriteableAPI();
-        
-        String filepath = this.getClass().getResource("test.png").getFile();
+       
+        String filepath = Thread.currentThread().getContextClassLoader().getResource("test.png").getFile();
         assertEquals("Success", api.login(USERNAME, PASSWORD));
         FileInputStream stream = new FileInputStream(filepath);
         FileInputStream streamForCounting = new FileInputStream(filepath);
