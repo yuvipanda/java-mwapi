@@ -1,4 +1,4 @@
-package org.mediawiki.api.tests;
+package org.wikimedia.api.tests;
 
 import static org.junit.Assert.*;
 
@@ -42,7 +42,7 @@ public class MWApiTest {
     private final String WRITEAPIURL = "http://localhost/w/api.php";
 
     // Use testwiki for read only tests
-    private final String READAPIURL = "http://test.wikipedia.org/w/api.php";
+    private final String READAPIURL = "http://localhost/w/api.php";
 
     private MWApi api;
 
@@ -53,13 +53,6 @@ public class MWApiTest {
 
     private void setupWriteableAPI() {
         api = new MWApi(WRITEAPIURL, new DefaultHttpClient());
-    }
-
-    @Test
-    public void testSiteMatrix() throws IOException {
-        ApiResult result = api.action("sitematrix").param("smlimit", 10).get();
-        assertTrue(result.getNode("//sitematrix") != null);
-        assertEquals(10, result.getNodes("//sitematrix/language").size());
     }
 
     @Test
@@ -111,7 +104,7 @@ public class MWApiTest {
     public void testUpload() throws IOException {
         setupWriteableAPI();
         
-        String filepath = this.getClass().getResource("test.png").getFile();
+        String filepath = Thread.currentThread().getContextClassLoader().getResource("test.png").getFile();
         assertEquals("Success", api.login(USERNAME, PASSWORD));
         FileInputStream stream = new FileInputStream(filepath);
         ApiResult result = api.upload("test", stream, "yo!", "Wassup?");
@@ -144,8 +137,9 @@ public class MWApiTest {
     @Test
     public void testUploadWithProgress() throws IOException {
         setupWriteableAPI();
-        
-        String filepath = this.getClass().getResource("test.png").getFile();
+
+        String filepath = Thread.currentThread().getContextClassLoader().getResource("test.png").getFile();
+
         assertEquals("Success", api.login(USERNAME, PASSWORD));
         FileInputStream stream = new FileInputStream(filepath);
         FileInputStream streamForCounting = new FileInputStream(filepath);
