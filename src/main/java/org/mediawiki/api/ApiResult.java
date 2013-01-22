@@ -13,7 +13,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import de.mastacode.http.Http.HttpRequestBuilder;
+import in.yuvi.http.fluent.Http.HttpRequestBuilder;
 
 public class ApiResult {
     private Node doc;

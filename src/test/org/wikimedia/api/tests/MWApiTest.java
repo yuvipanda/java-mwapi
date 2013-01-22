@@ -31,7 +31,7 @@ import org.w3c.dom.ls.LSSerializer;
 
 import com.sun.jmx.snmp.SnmpString;
 
-import de.mastacode.http.ProgressListener;
+import in.yuvi.http.fluent.ProgressListener;
 
 public class MWApiTest {
 
