@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.mediawiki.api;
+package org.mediawiki.mwapi;
 
 import java.io.IOError;
 import java.io.IOException;

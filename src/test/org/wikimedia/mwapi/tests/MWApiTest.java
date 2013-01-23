@@ -1,4 +1,4 @@
-package org.wikimedia.api.tests;
+package org.wikimedia.mwapi.tests;
 
 import static org.junit.Assert.*;
 
@@ -22,8 +22,8 @@ import javax.xml.xpath.XPathFactory;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.junit.Before;
 import org.junit.Test;
-import org.mediawiki.api.ApiResult;
-import org.mediawiki.api.MWApi;
+import org.mediawiki.mwapi.ApiResult;
+import org.mediawiki.mwapi.MWApi;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.ls.DOMImplementationLS;
