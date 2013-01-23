@@ -1,4 +1,4 @@
-package org.wikimedia.api.tests;
+package org.mediawiki.api.tests.tests;
 
 import static org.junit.Assert.*;
 
