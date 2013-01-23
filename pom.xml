@@ -4,13 +4,47 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>groupId</groupId>
-    <artifactId>java-mwapi</artifactId>
+    <groupId>org.wikimedia</groupId>
+    <artifactId>api</artifactId>
     <version>1.0-SNAPSHOT</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
+
+    <parent>
+        <groupId>org.sonatype.oss</groupId>
+        <artifactId>oss-parent</artifactId>
+        <version>7</version>
+    </parent>
+
+    <name>java-mwapi</name>
+    <description>A fluent client library for accessing mediawiki API</description>
+    <url>http://github.com/wikimedia/java-mwapi</url>
+
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <id>yuvipanda</id>
+            <name>Yuvi Panda</name>
+            <email>yuvipanda@gmail.com</email>
+            <timezone>0530</timezone>
+        </developer>
+    </developers>
+
+    <scm>
+        <connection>scm:git:git@github.com:wikimedia/java-mwapi.git</connection>
+        <developerConnection>scm:git:git@github.com:wikimedia/java-mwapi.git</developerConnection>
+        <url>http://github.com/wikimedia/java-mwapi.git</url>
+    </scm>
+
 
     <dependencies>
         <dependency>
